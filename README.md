@@ -34,9 +34,13 @@ Los dos notebooks están completos y ejecutados, con salidas, figuras y la discu
 | Validación | 0,896 |
 | Test | 0,846 |
 
-## Entorno
+## Requisitos
 
-Probado en Windows 10 con Python 3.13 y una GPU NVIDIA GeForce MX350 (2 GB):
+- Python 3.10 o superior.
+- Recomendado: GPU NVIDIA con CUDA. Funciona también en CPU, pero el entrenamiento de la U-Net es mucho más lento.
+- Unos 5 GB libres para PyTorch con CUDA y unos 6 GB para los datos (STL-10 comprimido y extraído).
+
+Versiones con las que se ejecutaron los notebooks:
 
 | Librería | Versión |
 |---|---|
@@ -45,49 +49,57 @@ Probado en Windows 10 con Python 3.13 y una GPU NVIDIA GeForce MX350 (2 GB):
 | numpy | 2.5.4 |
 | matplotlib | 3.11.2 |
 
-### Instalación
+## Instalación
 
-El entorno virtual y los datos están en `D:\dl_lab02`, porque en `C:` no hay espacio suficiente para PyTorch con CUDA (~4-5 GB).
+Crear un entorno virtual (en este ejemplo, `.venv` dentro del proyecto; puede estar en cualquier otra ruta):
 
 ```bash
-python -m venv D:/dl_lab02/venv
+python -m venv .venv
+```
+
+Instalar PyTorch. Elige el índice adecuado para tu sistema en [pytorch.org](https://pytorch.org/get-started/locally/); por ejemplo, con CUDA 12.6:
+
+```bash
+.venv/Scripts/python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+```
+
+> En Linux/macOS, usa `.venv/bin/python` en lugar de `.venv/Scripts/python`.
+
+> Para GPUs antiguas (arquitectura Pascal, `sm_61`), usa las wheels `cu126`: las versiones `cu128` y posteriores ya no las soportan.
+
+Instalar el resto de dependencias y registrar el kernel de Jupyter:
+
+```bash
+.venv/Scripts/python -m pip install jupyter ipykernel matplotlib numpy pandas scikit-learn tqdm ipywidgets pillow
 ```
 
 ```bash
-D:/dl_lab02/venv/Scripts/python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+.venv/Scripts/python -m ipykernel install --user --name dl_lab02 --display-name "Python (dl_lab02)"
 ```
 
-```bash
-D:/dl_lab02/venv/Scripts/python -m pip install jupyter ipykernel matplotlib numpy pandas scikit-learn tqdm ipywidgets pillow
-```
+Después, en VS Code o Jupyter, selecciona el kernel **"Python (dl_lab02)"**.
 
-```bash
-D:/dl_lab02/venv/Scripts/python -m ipykernel install --user --name dl_lab02 --display-name "Python (dl_lab02, D:)"
-```
+## Datos
 
-Después, en VS Code o Jupyter, selecciona el kernel **"Python (dl_lab02, D:)"**.
+| Dataset | Cómo obtenerlo |
+|---|---|
+| STL-10 | torchvision lo descarga automáticamente (~2,6 GB). Si el servidor de Stanford no responde, existe una copia de `stl10_binary.tar.gz` en Hugging Face (`xingslong/stl10_binary`): colócala en la carpeta de datos y torchvision comprobará su MD5. |
+| Cityscapes | Extraer `Cityscapes.zip` (incluido en el repositorio): 2975 imágenes de entrenamiento y 500 de validación. |
 
-> Las wheels `cu126` todavía incluyen soporte para GPUs Pascal (`sm_61`, como la MX350). Las versiones `cu128` y posteriores ya no.
-
-### Datos
-
-| Dataset | Ubicación | Origen |
-|---|---|---|
-| STL-10 | `D:/dl_lab02/data/stl10/stl10_binary/` | torchvision lo descarga solo. Si el servidor de Stanford no responde, existe una copia de `stl10_binary.tar.gz` en Hugging Face (`xingslong/stl10_binary`); torchvision comprueba su MD5. |
-| Cityscapes | `D:/dl_lab02/data/Cityscapes/cityscapes_data/{train,val}` | Extraer `Cityscapes.zip`, incluido en el repositorio (2975 imágenes de entrenamiento y 500 de validación). |
-
-Si cambias la ubicación de los datos, actualiza `DATA_ROOT` en el notebook de atención y `path_to_folder` en el de segmentación.
+Antes de ejecutar, ajusta las rutas a tu carpeta de datos:
+- `DATA_ROOT` en el notebook de atención (carpeta donde se descarga STL-10).
+- `path_to_folder` en el notebook de segmentación (carpeta `Cityscapes/cityscapes_data/`).
 
 ## Ejecutar los notebooks
 
-Ejecutar los notebooks completos desde la línea de comandos:
+Desde Jupyter o VS Code, o completos desde la línea de comandos:
 
 ```bash
-D:/dl_lab02/venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 STUDENT_Lab_Attention_CV.ipynb
+.venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 STUDENT_Lab_Attention_CV.ipynb
 ```
 
 ```bash
-D:/dl_lab02/venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 STUDENT_Lab_Image_Segmentation.ipynb
+.venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 STUDENT_Lab_Image_Segmentation.ipynb
 ```
 
 Los resultados pueden variar ligeramente entre ejecuciones: los parches de STL-10 y las particiones se generan aleatoriamente, y el entrenamiento en GPU no es determinista.
