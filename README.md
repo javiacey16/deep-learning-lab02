@@ -1,44 +1,26 @@
-# Deep Learning – Lab 02
+# Deep Learning – Laboratorios
 
-Dos prácticas de visión por computador con PyTorch:
+Prácticas de la asignatura de Deep Learning, implementadas en PyTorch. Cada carpeta contiene los notebooks completos y ejecutados (con salidas, figuras y respuestas a las preguntas) y su propio README con los resultados.
 
-| Notebook | Tema | Resultado (test) |
+| Carpeta | Tema | Notebooks |
 |---|---|---|
-| [STUDENT_Lab_Attention_CV.ipynb](STUDENT_Lab_Attention_CV.ipynb) | **Atención en visión (CBAM)**: clasificar si una imagen de STL-10 tiene un parche añadido | Accuracy **99,2 %** con CBAM frente a 85,2 % sin atención |
-| [STUDENT_Lab_Image_Segmentation.ipynb](STUDENT_Lab_Image_Segmentation.ipynb) | **Segmentación semántica con U-Net** sobre Cityscapes (64×64, 10 clases obtenidas con K-Means) | Pixel accuracy **84,6 %** |
+| [Lab02](Lab02/README.md) | Atención en visión (CBAM) y segmentación semántica (U-Net) | `STUDENT_Lab_Attention_CV.ipynb`, `STUDENT_Lab_Image_Segmentation.ipynb` |
+| [Lab03](Lab03/README.md) | Redes generativas antagónicas (GAN, DCGAN, WGAN-GP, cGAN) sobre MNIST | `STUDENT_Dcgan_mnist.ipynb`, `GAN_notebook.ipynb` |
 
-Los dos notebooks están completos y ejecutados, con salidas, figuras y la discusión de resultados (en inglés, como el enunciado).
+## Resumen de resultados
 
-## Contenido
-
-### 1. Attention in Computer Vision (CBAM)
-- Implementación del **Convolutional Block Attention Module**: Channel Attention Module (CAM) seguido del Spatial Attention Module (SAM).
-- Red convolucional sencilla + CBAM, entrenada 30 épocas con `BCELoss` y Adam.
-- Visualización de los mapas de características refinados y de la máscara de atención espacial, que localiza el parche.
-- **Ejercicio opcional:** comparación con la misma red sin atención.
-
-| Partición | CBAM | Sin atención |
+| Lab | Experimento | Resultado |
 |---|---|---|
-| Train | 0,993 | 0,846 |
-| Validación | 0,998 | 0,861 |
-| Test | 0,992 | 0,852 |
-
-### 2. Image Segmentation (U-Net)
-- Separación de imagen y etiqueta en el dataset Cityscapes (pix2pix), y conversión de colores RGB a 10 clases con **K-Means**.
-- U-Net completa (encoder, bottleneck, decoder con skip connections y clasificador) con BatchNorm, unos 31 M de parámetros.
-- Entrenamiento de 30 épocas con `CrossEntropyLoss` y Adam, y visualización de las predicciones.
-
-| Partición | Pixel accuracy |
-|---|---|
-| Train | 0,903 |
-| Validación | 0,896 |
-| Test | 0,846 |
+| Lab02 | CBAM: detectar un parche en imágenes STL-10 | 99,2 % de accuracy en test (85,2 % sin atención) |
+| Lab02 | U-Net en Cityscapes (64×64, 10 clases) | 84,6 % de pixel accuracy en test |
+| Lab03 | DCGAN en MNIST con lr = 0,005 | Dígitos realistas en los epochs 1-3; *mode collapse* total en el último epoch |
+| Lab03 | DCGAN interactiva en MNIST (lr = 2·10⁻⁴) | Genera los 10 dígitos (5-14 % cada uno); cGAN con un 89,9 % de acierto en el dígito pedido |
 
 ## Requisitos
 
 - Python 3.10 o superior.
-- Recomendado: GPU NVIDIA con CUDA. Funciona también en CPU, pero el entrenamiento de la U-Net es mucho más lento.
-- Unos 5 GB libres para PyTorch con CUDA y unos 6 GB para los datos (STL-10 comprimido y extraído).
+- Recomendado: GPU NVIDIA con CUDA. Todo funciona también en CPU, aunque los entrenamientos son bastante más lentos.
+- Espacio en disco: ~5 GB para PyTorch con CUDA y ~6 GB para los datos del Lab02 (STL-10). MNIST (Lab03) ocupa unos 100 MB.
 
 Versiones con las que se ejecutaron los notebooks:
 
@@ -48,10 +30,11 @@ Versiones con las que se ejecutaron los notebooks:
 | scikit-learn | 1.9.1 |
 | numpy | 2.5.4 |
 | matplotlib | 3.11.2 |
+| opencv-python | 5.1.0 |
 
 ## Instalación
 
-Crear un entorno virtual (en este ejemplo, `.venv` dentro del proyecto; puede estar en cualquier otra ruta):
+Crear un entorno virtual (en este ejemplo, `.venv` en la raíz del repositorio; puede estar en cualquier otra ruta):
 
 ```bash
 python -m venv .venv
@@ -70,7 +53,7 @@ Instalar PyTorch. Elige el índice adecuado para tu sistema en [pytorch.org](htt
 Instalar el resto de dependencias y registrar el kernel de Jupyter:
 
 ```bash
-.venv/Scripts/python -m pip install jupyter ipykernel matplotlib numpy pandas scikit-learn tqdm ipywidgets pillow
+.venv/Scripts/python -m pip install jupyter ipykernel ipywidgets matplotlib numpy pandas scikit-learn tqdm pillow opencv-python
 ```
 
 ```bash
@@ -79,33 +62,12 @@ Instalar el resto de dependencias y registrar el kernel de Jupyter:
 
 Después, en VS Code o Jupyter, selecciona el kernel **"Python (dl_lab02)"**.
 
-## Datos
+## Ejecutar un notebook completo
 
-| Dataset | Cómo obtenerlo |
-|---|---|
-| STL-10 | torchvision lo descarga automáticamente (~2,6 GB). Si el servidor de Stanford no responde, existe una copia de `stl10_binary.tar.gz` en Hugging Face (`xingslong/stl10_binary`): colócala en la carpeta de datos y torchvision comprobará su MD5. |
-| Cityscapes | Extraer `Cityscapes.zip` (incluido en el repositorio): 2975 imágenes de entrenamiento y 500 de validación. |
-
-Antes de ejecutar, ajusta las rutas a tu carpeta de datos:
-- `DATA_ROOT` en el notebook de atención (carpeta donde se descarga STL-10).
-- `path_to_folder` en el notebook de segmentación (carpeta `Cityscapes/cityscapes_data/`).
-
-## Ejecutar los notebooks
-
-Desde Jupyter o VS Code, o completos desde la línea de comandos:
+Desde Jupyter o VS Code, o desde la línea de comandos (el notebook se ejecuta en su propia carpeta). Por ejemplo:
 
 ```bash
-.venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 STUDENT_Lab_Attention_CV.ipynb
+.venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 Lab03/GAN_notebook.ipynb
 ```
 
-```bash
-.venv/Scripts/jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.kernel_name=dl_lab02 STUDENT_Lab_Image_Segmentation.ipynb
-```
-
-Los resultados pueden variar ligeramente entre ejecuciones: los parches de STL-10 y las particiones se generan aleatoriamente, y el entrenamiento en GPU no es determinista.
-
-## Notas sobre el código proporcionado
-
-- **Parche "blanco" de STL-10:** `img[...] = 1` se aplica a una imagen `uint8` (0-255), así que el parche es en realidad casi negro.
-- **Partición train/validación:** se crean con dos `random_split` independientes del mismo dataset, de modo que validación y entrenamiento se solapan. La métrica de validación es, por tanto, optimista; el conjunto de test es la estimación fiable.
-- **Modo evaluación:** se añadió `model.eval()` en validación y evaluación para que BatchNorm no actualice sus estadísticas con esos datos.
+Los datos y los resultados generados (datasets descargados, pesos entrenados) no se incluyen en el repositorio: ver `.gitignore` y el README de cada carpeta.
